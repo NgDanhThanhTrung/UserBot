@@ -28,8 +28,11 @@ async def run_universal_spam(target: str, base_cmd: str, max_messages: int):
         if not client.is_connected(): await client.connect()
         for i in range(max_messages):
             if spam_control["stop_flag"]: break
-            await client.send_message(target, base_cmd)
-            logger.info(f"Sent {base_cmd} to {target} ({i+1}/{max_messages})")
+            
+            msg_content = f"{base_cmd} #{i + 1}"
+            await client.send_message(target, msg_content)
+            logger.info(f"Sent to {target}: {msg_content}")
+            
             if i < max_messages - 1:
                 await asyncio.sleep(random.uniform(1.5, 3.5))
     except Exception as e:
