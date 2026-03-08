@@ -22,14 +22,11 @@ async def run_universal_spam(target: str, base_cmd: str, max_messages: int):
     global spam_control
     if spam_control["is_running"]: return
     
-    is_special = target.lower() == "@deptraikhongsoai_bot"
+    clean_target = target.lower().replace("@", "")
+    is_special = clean_target == "deptraikhongsoai_bot"
     
-    if is_special:
-        final_count = 5
-        wait_time = 10
-    else:
-        final_count = max_messages
-        wait_time = None
+    final_count = 5 if is_special else max_messages
+    wait_time = 10 if is_special else random.uniform(1.5, 3.5)
 
     spam_control["is_running"], spam_control["stop_flag"] = True, False
     
@@ -43,8 +40,7 @@ async def run_universal_spam(target: str, base_cmd: str, max_messages: int):
             logger.info(f"Sent to {target}: {msg_content}")
             
             if i < final_count - 1:
-                sleep_duration = wait_time if is_special else random.uniform(1.5, 3.5)
-                await asyncio.sleep(sleep_duration)
+                await asyncio.sleep(wait_time)
     except Exception as e:
         logger.error(f"Error: {e}")
     finally:
@@ -62,8 +58,16 @@ async def stop():
 @app.get("/{bot_username}/{command}/{count}")
 async def dynamic_trigger(bot_username: str, command: str, count: int):
     full_cmd = f"/{command.replace('-', ' ')}"
+    clean_un = bot_username.lower().replace("@", "")
+    actual_count = 5 if clean_un == "deptraikhongsoai_bot" else count
+    
     asyncio.create_task(run_universal_spam(bot_username, full_cmd, count))
-    return {"target": bot_username, "cmd": full_cmd, "count": 5 if bot_username.lower() == "@deptraikhongsoai_bot" else count}
+    
+    return {
+        "target": bot_username, 
+        "cmd": full_cmd, 
+        "limit_applied": actual_count
+    }
 
 @app.on_event("startup")
 async def startup():
