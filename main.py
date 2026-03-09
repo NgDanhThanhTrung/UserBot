@@ -31,12 +31,12 @@ async def auto_scheduler():
             logger.info(f"Auto-sent /work to @{target_bot}")
             
             if counter % 2 == 0:
-                await asyncio.sleep(random.uniform(2, 4))
+                await asyncio.sleep(random.uniform(10, 12))
                 await client.send_message(target_bot, "/dao")
                 logger.info(f"Auto-sent /dao to @{target_bot}")
                 
             if counter % 24 == 0:
-                await asyncio.sleep(random.uniform(2, 4))
+                await asyncio.sleep(random.uniform(10, 12))
                 await client.send_message(target_bot, "/daily")
                 logger.info(f"Auto-sent /daily to @{target_bot}")
             
@@ -65,7 +65,10 @@ async def run_universal_spam(target: str, base_cmd: str, max_messages: int):
             logger.info(f"Sent to {target}: {msg_content}")
             
             if i < max_messages - 1:
-                await asyncio.sleep(random.uniform(1.5, 3.5))
+                if target.lower() == "deptraikhongsoai_bot":
+                    await asyncio.sleep(random.uniform(6.0, 8.0))
+                else:
+                    await asyncio.sleep(random.uniform(1.5, 3.5))
     except Exception as e:
         logger.error(f"Error: {e}")
     finally:
