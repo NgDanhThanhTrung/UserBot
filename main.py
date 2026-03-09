@@ -27,22 +27,27 @@ async def auto_scheduler():
             if not client.is_connected():
                 await client.connect()
             
-            await client.send_message(target_bot, "/work")
-            logger.info(f"Auto-sent /work to @{target_bot}")
+            await client.send_message(target_bot, "/nhanxu")
+            logger.info(f"Auto-sent /nhanxu to @{target_bot}")
             
-            if counter % 2 == 0:
+            if counter % 3 == 0:
+                await asyncio.sleep(random.uniform(10, 12))
+                await client.send_message(target_bot, "/work")
+                logger.info(f"Auto-sent /work to @{target_bot}")
+            
+            if counter % 6 == 0:
                 await asyncio.sleep(random.uniform(10, 12))
                 await client.send_message(target_bot, "/dao")
                 logger.info(f"Auto-sent /dao to @{target_bot}")
                 
-            if counter % 24 == 0:
+            if counter % 72 == 0:
                 await asyncio.sleep(random.uniform(10, 12))
                 await client.send_message(target_bot, "/daily")
                 logger.info(f"Auto-sent /daily to @{target_bot}")
             
-            counter = (counter + 1) % 24
+            counter = (counter + 1) % 72
             
-            delay = 1800 + random.uniform(5, 10)
+            delay = 600 + random.uniform(5, 10)
             await asyncio.sleep(delay)
             
         except Exception as e:
