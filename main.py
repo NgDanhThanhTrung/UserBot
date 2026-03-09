@@ -18,6 +18,33 @@ SESSION_STR = os.environ.get("SESSION_STR", "")
 spam_control = {"is_running": False, "stop_flag": False}
 client = TelegramClient(StringSession(SESSION_STR), API_ID, API_HASH)
 
+async def auto_scheduler():
+    counter = 0
+    target_bot = "deptraikhongsoai_bot"
+    
+    while True:
+        try:
+            if not client.is_connected():
+                await client.connect()
+            
+            await client.send_message(target_bot, "/work")
+            logger.info(f"Auto-sent /work to @{target_bot}")
+            
+            if counter % 2 == 0:
+                await client.send_message(target_bot, "/dao")
+                logger.info(f"Auto-sent /dao to @{target_bot}")
+                
+            if counter % 24 == 0:
+                await client.send_message(target_bot, "/daily")
+                logger.info(f"Auto-sent /daily to @{target_bot}")
+            
+            counter = (counter + 1) % 24
+            await asyncio.sleep(1800)
+            
+        except Exception as e:
+            logger.error(f"Auto-scheduler error: {e}")
+            await asyncio.sleep(60)
+
 async def run_universal_spam(target: str, base_cmd: str, max_messages: int):
     global spam_control
     if spam_control["is_running"]: return
@@ -59,3 +86,4 @@ async def dynamic_trigger(bot_username: str, command: str, count: int):
 async def startup():
     if API_ID and API_HASH and SESSION_STR:
         await client.connect()
+        asyncio.create_task(auto_scheduler())
