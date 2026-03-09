@@ -29,7 +29,7 @@ async def run_universal_spam(target: str, base_cmd: str, max_messages: int):
         for i in range(max_messages):
             if spam_control["stop_flag"]: break
             
-            msg_content = f"{base_cmd} {max_messages} #{i + 1}"
+            msg_content = f"{base_cmd} #{i + 1}"
             await client.send_message(target, msg_content)
             logger.info(f"Sent to {target}: {msg_content}")
             
