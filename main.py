@@ -31,15 +31,19 @@ async def auto_scheduler():
             logger.info(f"Auto-sent /work to @{target_bot}")
             
             if counter % 2 == 0:
+                await asyncio.sleep(random.uniform(2, 4))
                 await client.send_message(target_bot, "/dao")
                 logger.info(f"Auto-sent /dao to @{target_bot}")
                 
             if counter % 24 == 0:
+                await asyncio.sleep(random.uniform(2, 4))
                 await client.send_message(target_bot, "/daily")
                 logger.info(f"Auto-sent /daily to @{target_bot}")
             
             counter = (counter + 1) % 24
-            await asyncio.sleep(1800)
+            
+            delay = 1800 + random.uniform(5, 10)
+            await asyncio.sleep(delay)
             
         except Exception as e:
             logger.error(f"Auto-scheduler error: {e}")
