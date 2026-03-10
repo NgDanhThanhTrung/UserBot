@@ -1,17 +1,14 @@
-import os
-import asyncio
-import logging
-import random
-import re
+import os, asyncio, logging, random, re
 from fastapi import FastAPI
 from telethon import TelegramClient, events
 from telethon.sessions import StringSession
+from dotenv import load_dotenv
 
+load_dotenv()
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
-
 API_ID = int(os.environ.get("API_ID", 0))
 API_HASH = os.environ.get("API_HASH", "")
 SESSION_STR = os.environ.get("SESSION_STR", "")
@@ -38,8 +35,7 @@ async def auto_scheduler():
     target_bot = "deptraikhongsoai_bot"
     while True:
         try:
-            if not client.is_connected():
-                await client.connect()
+            if not client.is_connected(): await client.connect()
             await client.send_message(target_bot, "/nhanxu")
             logger.info(f"Auto-sent /nhanxu to @{target_bot}")
             if counter % 3 == 0:
@@ -74,14 +70,11 @@ async def run_universal_spam(target: str, base_cmd: str, max_messages: int):
             if i < max_messages - 1:
                 wait = random.uniform(6.0, 8.0) if target.lower() == "deptraikhongsoai_bot" else random.uniform(1.5, 3.5)
                 await asyncio.sleep(wait)
-    except Exception as e:
-        logger.error(f"Error: {e}")
-    finally:
-        spam_control["is_running"] = False
+    except Exception as e: logger.error(f"Error: {e}")
+    finally: spam_control["is_running"] = False
 
 @app.get("/health")
-async def health():
-    return {"status": "alive"}
+async def health(): return {"status": "alive"}
 
 @app.get("/stop")
 async def stop():
