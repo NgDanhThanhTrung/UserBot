@@ -1,7 +1,6 @@
 import os
 import asyncio
 import logging
-import random
 from fastapi import FastAPI
 from telethon import TelegramClient
 from telethon.sessions import StringSession
@@ -18,7 +17,7 @@ SESSION_STR = os.environ.get("SESSION_STR", "")
 spam_control = {"is_running": False, "stop_flag": False}
 client = TelegramClient(StringSession(SESSION_STR), API_ID, API_HASH)
 
-async def run_universal_spam(target: str, base_cmd: str, max_messages: int):
+async def run_universal_spam(target: str, content: str, max_messages: int):
     global spam_control
     if spam_control["is_running"]: return
     
@@ -28,13 +27,11 @@ async def run_universal_spam(target: str, base_cmd: str, max_messages: int):
         if not client.is_connected(): await client.connect()
         for i in range(max_messages):
             if spam_control["stop_flag"]: break
-            
-            msg_content = f"{base_cmd} #{i + 1}"
-            await client.send_message(target, msg_content)
-            logger.info(f"Sent to {target}: {msg_content}")
+            await client.send_message(target, content)
+            logger.info(f"Sent to {target}: {content}")
             
             if i < max_messages - 1:
-                await asyncio.sleep(random.uniform(1.5, 3.5))
+                await asyncio.sleep(0.1) 
     except Exception as e:
         logger.error(f"Error: {e}")
     finally:
@@ -49,11 +46,17 @@ async def stop():
     spam_control["stop_flag"] = True
     return {"status": "stopped"}
 
-@app.get("/{bot_username}/{command}/{count}")
-async def dynamic_trigger(bot_username: str, command: str, count: int):
+@app.get("/cmd/{bot_username}/{command}/{count}")
+async def trigger_command(bot_username: str, command: str, count: int):
     full_cmd = f"/{command.replace('-', ' ')}"
     asyncio.create_task(run_universal_spam(bot_username, full_cmd, count))
-    return {"target": bot_username, "cmd": full_cmd, "count": count}
+    return {"mode": "command", "target": bot_username, "content": full_cmd, "count": count}
+
+@app.get("/txt/{bot_username}/{text}/{count}")
+async def trigger_text(bot_username: str, text: str, count: int):
+    clean_text = text.replace('-', ' ')
+    asyncio.create_task(run_universal_spam(bot_username, clean_text, count))
+    return {"mode": "text", "target": bot_username, "content": clean_text, "count": count}
 
 @app.on_event("startup")
 async def startup():
